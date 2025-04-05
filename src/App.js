@@ -1,53 +1,53 @@
-import React, { useState } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
-import MovieList from './components/MovieList';
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import MovieList from './components/MovieList';
+import MovieListHeading from './components/MovieListHeading';
+import SearchBox from './components/SearchBox';
+import AddFavourites from './components/AddFavourites';
+import RemoveFavourites from './components/RemoveFavourites';
 
 const App = () => {
-    const [movies, setMovies] = useState([
-      {
-        "Title": "Merlin",
-        "Year": "2008–2012",
-        "imdbID": "tt1199099",
-        "Type": "series",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BNmI5NDgyZmQtNDc3YS00Mjg0LThmMzEtZjcyNzczOTJlYWY4XkEyXkFqcGc@._V1_SX300.jpg"
-    },
-    {
-        "Title": "Merlin",
-        "Year": "1998",
-        "imdbID": "tt0130414",
-        "Type": "series",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BZDE5YWExMGMtYTA5ZS00ODNlLTkzMjEtN2U5NDUyYWIxNDZhXkEyXkFqcGc@._V1_SX300.jpg"
-    },
-    {
-        "Title": "Arthur & Merlin: Knights of Camelot",
-        "Year": "2020",
-        "imdbID": "tt7052270",
-        "Type": "movie",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BMTYxODYwMTMtZDFmNi00YTJmLTliM2ItNjIyZTEyOTYzODY0XkEyXkFqcGc@._V1_SX300.jpg"
-    },
-    {
-        "Title": "Arthur & Merlin",
-        "Year": "2015",
-        "imdbID": "tt4065340",
-        "Type": "movie",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BYTk0YWMzZTktYmU1MS00NWZkLTk1ZTctZjQ3MzE5MjEzNTM5XkEyXkFqcGc@._V1_SX300.jpg"
-    },
-    {
-        "Title": "Merlin and the War of the Dragons",
-        "Year": "2008",
-        "imdbID": "tt1294699",
-        "Type": "movie",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BMjAwMDc2NzI4M15BMl5BanBnXkFtZTcwODg3MTEwMg@@._V1_SX300.jpg"
-    },
-  ]);
-    return (
-      <div className='container-fluid movie-app'>
-        <div className='row'>
-          <MovieList movies={movies} />
-        </div>
-      </div>
-    );
-};
+	const [movies, setMovies] = useState([]);
+	const [favourites, setFavourites] = useState([]);
+	const [searchValue, setSearchValue] = useState('');
 
-export default App;
+	const getMovieRequest = async (searchValue) => {
+		const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=263d22d8`;
+
+		const response = await fetch(url);
+		const responseJson = await response.json();
+
+		if (responseJson.Search) {
+			setMovies(responseJson.Search);
+		}
+	};
+
+	useEffect(() => {
+		getMovieRequest(searchValue);
+	}, [searchValue]);
+
+	useEffect(() => {
+		const movieFavourites = JSON.parse(
+			localStorage.getItem('react-movie-app-favourites')
+		);
+
+		if (movieFavourites) {
+			setFavourites(movieFavourites);
+		}
+	}, []);
+
+	const saveToLocalStorage = (items) => {
+		localStorage.setItem('react-movie-app-favourites', JSON.stringify(items));
+	};
+
+	const addFavouriteMovie = (movie) => {
+		const newFavouriteList = [...favourites, movie];
+		setFavourites(newFavouriteList);
+		saveToLocalStorage(newFavouriteList);
+	};
+
+	const removeFavouriteMovie = (movie) => {
+		const newFavouriteList = favourites.filter(
+			(favourite) => favourite.imdbID !== movie.imdbID
+		);
