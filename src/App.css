@@ -1,0 +1,25 @@
+body {
+  background: #141414;
+  color: #ffffff;
+}
+
+/* Reduce container padding if necessary */
+.movie-app {
+  padding: 10px; /* Adjust as needed */
+}
+
+/* Remove row gutters */
+.row.no-gutters {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.row.no-gutters > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Optionally, add a small margin around each card */
+.movie-card {
+  margin: 2px;
+}
