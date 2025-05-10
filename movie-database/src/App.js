@@ -17,7 +17,7 @@ const App = () => {
   // Fetch movies based on search query
   const getMovieRequest = async (searchValue) => {
     try {
-      const url = `https://www.omdbapi.com/?s=avengers&apikey=263d22d8`; // Ensure using HTTPS
+      const url = `https://www.omdbapi.com/?s=avengers&apikey=263d22d8`;
       console.log('Fetching movies for:', searchValue); // Log search term
       const response = await fetch(url);
       const responseJson = await response.json();
