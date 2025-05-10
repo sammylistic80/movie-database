@@ -14,11 +14,15 @@ const App = () => {
   
   const typingTimeoutRef = useRef(null);
 
+  // Fetch movies based on search query
   const getMovieRequest = async (searchValue) => {
     try {
-      const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=263d22d8`;
+      const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=263d22d8`; // Ensure using HTTPS
+      console.log('Fetching movies for:', searchValue); // Log search term
       const response = await fetch(url);
       const responseJson = await response.json();
+      
+      console.log('API Response:', responseJson); // Log API response
 
       if (responseJson.Search) {
         setMovies(responseJson.Search);
@@ -40,6 +44,8 @@ const App = () => {
       typingTimeoutRef.current = setTimeout(() => {
         getMovieRequest(searchValue);
       }, 500);  // Adjust 500ms delay as necessary
+    } else {
+      setMovies([]); // Clear results if searchValue is empty
     }
   }, [searchValue]);
 
