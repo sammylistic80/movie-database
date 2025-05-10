@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import MovieList from './components/MovieList';
@@ -11,22 +11,44 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const [searchValue, setSearchValue] = useState('');
+  
+  const typingTimeoutRef = useRef(null);
 
   const getMovieRequest = async (searchValue) => {
-    const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=263d22d8`;
+    try {
+      const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=263d22d8`;
+      const response = await fetch(url);
+      const responseJson = await response.json();
 
-    const response = await fetch(url);
-    const responseJson = await response.json();
-
-    if (responseJson.Search) {
-      setMovies(responseJson.Search);
+      if (responseJson.Search) {
+        setMovies(responseJson.Search);
+      } else {
+        setMovies([]); // Clear if no results
+      }
+    } catch (err) {
+      console.error('Fetch failed:', err);
     }
   };
 
+  // Debounced search effect
   useEffect(() => {
-    getMovieRequest(searchValue);
+    if (searchValue.trim() !== '') {
+      // Clear any previous timeout if the user is still typing
+      clearTimeout(typingTimeoutRef.current);
+
+      // Set a new timeout to trigger the search after 500ms
+      typingTimeoutRef.current = setTimeout(() => {
+        getMovieRequest(searchValue);
+      }, 500);  // Adjust 500ms delay as necessary
+    }
   }, [searchValue]);
 
+  // Default search value effect
+  useEffect(() => {
+    setSearchValue('Avengers'); // Default search value when app loads
+  }, []);
+
+  // Load favourites from local storage
   useEffect(() => {
     const movieFavourites = JSON.parse(localStorage.getItem('react-movie-app-favourites'));
     if (movieFavourites) {
@@ -34,16 +56,19 @@ const App = () => {
     }
   }, []);
 
+  // Save to local storage
   const saveToLocalStorage = (items) => {
     localStorage.setItem('react-movie-app-favourites', JSON.stringify(items));
   };
 
+  // Add to favourites
   const addFavouriteMovie = (movie) => {
     const newFavouriteList = [...favourites, movie];
     setFavourites(newFavouriteList);
     saveToLocalStorage(newFavouriteList);
   };
 
+  // Remove from favourites
   const removeFavouriteMovie = (movie) => {
     const newFavouriteList = favourites.filter(
       (favourite) => favourite.imdbID !== movie.imdbID
