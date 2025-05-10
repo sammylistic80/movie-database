@@ -51,9 +51,11 @@ const App = () => {
 
   // Default search value effect
   useEffect(() => {
-    setSearchValue('Avengers');
-    getMovieRequest(Avengers);
+    const defaultSearch = 'Avengers';
+    setSearchValue(defaultSearch);
+    getMovieRequest(defaultSearch); // ✅ Pass the string
   }, []);
+  
 
   // Load favourites from local storage
   useEffect(() => {
